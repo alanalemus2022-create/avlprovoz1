@@ -3,13 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link rel="icon" href="LOGO3.jpeg">
+<link rel="icon" href="LOGO3.jpeg" type="image/jpeg" sizes="96x96">
 <title>Simulador de Árboles AVL — Rotaciones y Comandos de Voz</title>
 <meta name="description" content="Simulador interactivo de árboles AVL: inserta, elimina y busca nodos, observa las rotaciones LL/RR/LR/RL en tiempo real y contrólalo por voz en 4 idiomas.">
 <meta name="google-site-verification" content="8eSgJU4bQLhOO5R6pXGPernex0OpZd37PB_B9ZUS2fY" />
 <link rel="canonical" href="https://avlprovoz1.onrender.com/" />
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+
+<!-- ════ 1. ETIQUETAS OPEN GRAPH PARA REDES SOCIALES ════ -->
 <meta property="og:site_name" content="Simulador de Árboles AVL">
+<meta property="og:title" content="Simulador de Árboles AVL">
+<meta property="og:description" content="Simulador interactivo con rotaciones en tiempo real y control por voz. Construido con Canvas y JavaScript.">
+<meta property="og:image" content="https://avlprovoz1.onrender.com/LOGO3.jpeg">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- ════ 4. BASE PARA PWA (PROGRESIVE WEB APP) ════ -->
+<meta name="theme-color" content="#0e0e10" id="themeColorMeta">
+<link rel="apple-touch-icon" href="LOGO3.jpeg">
+<link rel="manifest" href="manifest.json">
 
 <script type="application/ld+json">
 {
@@ -72,7 +83,6 @@ html, body {
   transition: background .3s, color .3s;
 }
 
-/* LAYOUT PRINCIPAL: 3 filas (Header, Nav, Canvas) */
 .app {
   display: grid;
   grid-template-rows: auto auto 1fr;
@@ -229,18 +239,10 @@ html, body {
   scrollbar-width: thin;
 }
 
-.toolbar::-webkit-scrollbar { 
-  height: 6px; 
-}
+.toolbar::-webkit-scrollbar { height: 6px; }
+.toolbar::-webkit-scrollbar-thumb { background: var(--scroll); border-radius: 3px; }
 
-.toolbar::-webkit-scrollbar-thumb { 
-  background: var(--scroll); 
-  border-radius: 3px; 
-}
-
-.mobile-menu-header {
-  display: none;
-}
+.mobile-menu-header { display: none; }
 
 .sec {
   display: flex; 
@@ -252,10 +254,7 @@ html, body {
   justify-content: center;
 }
 
-.sec:last-child { 
-  border-right: none; 
-  padding-right: 0; 
-}
+.sec:last-child { border-right: none; padding-right: 0; }
 
 .sec-lbl { 
   font-size: 8px; 
@@ -265,11 +264,7 @@ html, body {
   margin-bottom: 2px; 
 }
 
-.row { 
-  display: flex; 
-  gap: 6px; 
-  align-items: center; 
-}
+.row { display: flex; gap: 6px; align-items: center; }
 
 input[type=number] {
   background: var(--panel); 
@@ -290,14 +285,8 @@ input[type=number]::-webkit-inner-spin-button {
   -webkit-appearance: none; 
 }
 
-input[type=number]:focus { 
-  border-color: var(--accent); 
-}
-
-input[type=number]::placeholder { 
-  color: var(--muted); 
-  font-size: 12px; 
-}
+input[type=number]:focus { border-color: var(--accent); }
+input[type=number]::placeholder { color: var(--muted); font-size: 12px; }
 
 .btn {
   font-family: 'DM Mono', monospace; 
@@ -311,64 +300,21 @@ input[type=number]::placeholder {
   white-space: nowrap;
 }
 
-.btn-acc { 
-  background: var(--accent); 
-  color: #0c0c10; 
-}
+.btn-acc { background: var(--accent); color: #0c0c10; }
+[data-theme=light] .btn-acc { color: #fff; }
+.btn-acc:hover { filter: brightness(1.1); }
 
-[data-theme=light] .btn-acc { 
-  color: #fff; 
-}
+.btn-gh { background: var(--panel); color: var(--text); border: 1px solid var(--border); }
+.btn-gh:hover { border-color: var(--accent2); color: var(--accent2); }
 
-.btn-acc:hover { 
-  filter: brightness(1.1); 
-}
+.btn-del { background: transparent; color: var(--danger); border: 1px solid var(--danger); opacity: .65; }
+.btn-del:hover { opacity: 1; background: rgba(255,80,80,.07); }
 
-.btn-gh { 
-  background: var(--panel); 
-  color: var(--text); 
-  border: 1px solid var(--border); 
-}
+.btn-w { width: 100%; }
+.btn-grid { display: flex; gap: 5px; flex: 1; }
 
-.btn-gh:hover { 
-  border-color: var(--accent2); 
-  color: var(--accent2); 
-}
-
-.btn-del { 
-  background: transparent; 
-  color: var(--danger); 
-  border: 1px solid var(--danger); 
-  opacity: .65; 
-}
-
-.btn-del:hover { 
-  opacity: 1; 
-  background: rgba(255,80,80,.07); 
-}
-
-.btn-w { 
-  width: 100%; 
-}
-
-.btn-grid { 
-  display: flex; 
-  gap: 5px; 
-  flex: 1; 
-}
-
-.spd-row { 
-  display: flex; 
-  align-items: center; 
-  gap: 9px; 
-  margin-top: 4px; 
-}
-
-.spd-lbl { 
-  font-size: 10px; 
-  color: var(--muted); 
-  min-width: 32px; 
-}
+.spd-row { display: flex; align-items: center; gap: 9px; margin-top: 4px; }
+.spd-lbl { font-size: 10px; color: var(--muted); min-width: 32px; }
 
 input[type=range] { 
   flex: 1; 
@@ -389,22 +335,9 @@ input[type=range]::-webkit-slider-thumb {
   border: 2px solid var(--bg); 
 }
 
-.spd-val { 
-  font-size: 10px; 
-  color: var(--accent); 
-  min-width: 26px; 
-  text-align: right; 
-  font-weight: bold; 
-}
+.spd-val { font-size: 10px; color: var(--accent); min-width: 26px; text-align: right; font-weight: bold; }
 
-.log-sec { 
-  flex: 1; 
-  min-width: 250px; 
-  max-width: 400px; 
-  display: flex; 
-  flex-direction: column; 
-  height: 95px; 
-}
+.log-sec { flex: 1; min-width: 250px; max-width: 400px; display: flex; flex-direction: column; height: 95px; }
 
 .log-body {
   flex: 1; 
@@ -427,10 +360,7 @@ input[type=range]::-webkit-slider-thumb {
   border-bottom: 1px solid rgba(255,255,255,0.02); 
 }
 
-.log-entry:last-child { 
-  border-bottom: none; 
-}
-
+.log-entry:last-child { border-bottom: none; }
 .log-entry.hl { color: var(--accent); } 
 .log-entry.inf { color: var(--accent2); }
 .log-entry.wn { color: var(--warn); } 
@@ -460,21 +390,11 @@ input[type=range]::-webkit-slider-thumb {
    OVERLAY DEL SIDEBAR
 ══════════════════════════════════════ */
 .sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 90;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 90;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+  backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
 }
-
-.sidebar-overlay.active {
-  opacity: 1;
-  pointer-events: all;
-}
+.sidebar-overlay.active { opacity: 1; pointer-events: all; }
 
 /* ══════════════════════════════════════
    CANVAS, OVERLAYS & ANIMATED BACKGROUNDS
@@ -492,41 +412,25 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 .cv-wrap::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
   background-image: 
     radial-gradient(1px 1px at 20px 30px, #ffffff, transparent),
     radial-gradient(1.5px 1.5px at 150px 100px, var(--accent), transparent),
     radial-gradient(2px 2px at 250px 300px, var(--accent2), transparent);
   background-size: 250px 250px, 350px 350px, 500px 500px;
   animation: starDrift 90s linear infinite; 
-  opacity: 0.7;
-  transition: opacity 0.5s;
+  opacity: 0.7; transition: opacity 0.5s;
 }
 
 .cv-wrap::before {
-  content: ''; 
-  position: absolute; 
-  inset: 0; 
-  pointer-events: none;
-  z-index: 0;
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
   background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 48px 48px; 
-  opacity: 0.08; 
-  transition: opacity 0.5s;
+  background-size: 48px 48px; opacity: 0.08; transition: opacity 0.5s;
 }
 
 canvas { 
-  position: absolute; 
-  top: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 100%; 
-  touch-action: none; 
-  z-index: 1;
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+  touch-action: none; z-index: 1;
 }
 
 /* --- ANIMACIONES Y ESTILOS PARA EL MODO CLARO ÉPICO --- */
@@ -542,95 +446,44 @@ canvas {
 }
 
 [data-theme="light"] .cv-wrap {
-  /* Gradiente aurora suave en constante movimiento */
   background: linear-gradient(-45deg, #f0f0f5, #e4ebfa, #f0f9e8, #fdf5e6);
-  background-size: 400% 400%;
-  animation: auroraLight 25s ease infinite;
+  background-size: 400% 400%; animation: auroraLight 25s ease infinite;
 }
 
 [data-theme="light"] .cv-wrap::after {
-  /* Orbes gigantes de luz que respiran en el fondo */
   background-image: 
     radial-gradient(800px circle at 0% 0%, rgba(0, 85, 160, 0.06), transparent 70%),
     radial-gradient(800px circle at 100% 100%, rgba(74, 104, 0, 0.06), transparent 70%),
     radial-gradient(600px circle at 50% 50%, rgba(192, 112, 0, 0.04), transparent 70%);
   background-size: 150% 150%, 150% 150%, 150% 150%;
-  background-repeat: no-repeat;
-  animation: floatOrbs 18s ease-in-out infinite;
-  opacity: 1;
+  background-repeat: no-repeat; animation: floatOrbs 18s ease-in-out infinite; opacity: 1;
 }
 
-[data-theme="light"] .cv-wrap::before {
-  opacity: 0.15; /* Cuadrícula técnica sutilmente más visible */
-}
+[data-theme="light"] .cv-wrap::before { opacity: 0.15; }
 
 /* ══════════════════════════════════════
    OVERLAYS E INTERFAZ DEL ÁRBOL
 ══════════════════════════════════════ */
 .traversals {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  left: auto;
-  background: rgba(28, 28, 34, 0.85); 
-  backdrop-filter: blur(4px); 
-  -webkit-backdrop-filter: blur(4px);
-  border: 1px solid var(--border); 
-  border-radius: 8px; 
-  padding: 12px 16px;
-  display: flex; 
-  flex-direction: column; 
-  gap: 8px; 
-  z-index: 5; 
-  pointer-events: none;
+  position: absolute; top: 14px; right: 14px; left: auto;
+  background: rgba(28, 28, 34, 0.85); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px;
+  display: flex; flex-direction: column; gap: 8px; z-index: 5; pointer-events: none;
   box-shadow: 0 4px 15px var(--shadow);
 }
 
-[data-theme="light"] .traversals { 
-  background: rgba(245, 245, 250, 0.85); 
-}
+[data-theme="light"] .traversals { background: rgba(245, 245, 250, 0.85); }
 
-.trav-row { 
-  display: flex; 
-  align-items: baseline; 
-  gap: 8px; 
-  font-size: 11px; 
-}
-
-.trav-lbl { 
-  color: var(--accent2); 
-  font-weight: 700; 
-  width: 65px; 
-  flex-shrink: 0; 
-}
-
-.trav-val { 
-  color: var(--text); 
-  word-break: break-all; 
-  max-width: 300px; 
-  line-height: 1.4; 
-}
+.trav-row { display: flex; align-items: baseline; gap: 8px; font-size: 11px; }
+.trav-lbl { color: var(--accent2); font-weight: 700; width: 65px; flex-shrink: 0; }
+.trav-val { color: var(--text); word-break: break-all; max-width: 300px; line-height: 1.4; }
 
 .banner {
-  position: absolute; 
-  top: 14px; 
-  left: 50%; 
-  transform: translateX(-50%);
-  background: var(--panel); 
-  border: 1px solid var(--border); 
-  border-radius: 8px;
-  padding: 8px 20px; 
-  font-size: 12px; 
-  font-weight: 500; 
-  color: var(--text); 
-  opacity: 0;
-  transition: opacity .2s; 
-  pointer-events: none; 
-  white-space: nowrap;
-  box-shadow: 0 4px 20px var(--shadow); 
-  max-width: 90%; 
-  text-align: center; 
-  z-index: 5;
+  position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+  background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 20px; font-size: 12px; font-weight: 500; color: var(--text); 
+  opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap;
+  box-shadow: 0 4px 20px var(--shadow); max-width: 90%; text-align: center; z-index: 5;
 }
 
 .banner.on { opacity: 1; }
@@ -640,85 +493,34 @@ canvas {
 .banner.bad { border-color: var(--danger); color: var(--danger); }
 
 .zoom { 
-  position: absolute; 
-  bottom: 14px; 
-  right: 14px; 
-  display: flex; 
-  flex-direction: column; 
-  gap: 6px; 
-  z-index: 10; 
+  position: absolute; bottom: 14px; right: 14px; display: flex; flex-direction: column; gap: 6px; z-index: 10; 
 }
 
 .zbtn {
-  width: 36px; 
-  height: 36px; 
-  background: var(--panel); 
-  border: 1px solid var(--border);
-  border-radius: 8px; 
-  color: var(--text); 
-  font-size: 18px; 
-  font-weight: bold; 
-  cursor: pointer;
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  transition: all .15s;
+  width: 36px; height: 36px; background: var(--panel); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-size: 18px; font-weight: bold; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all .15s;
   box-shadow: 0 2px 8px var(--shadow);
 }
 
-.zbtn:hover { 
-  border-color: var(--accent); 
-  color: var(--accent); 
-}
+.zbtn:hover { border-color: var(--accent); color: var(--accent); }
 
 .legend {
-  position: absolute; 
-  bottom: 14px; 
-  left: 14px; 
-  background: var(--panel);
-  border: 1px solid var(--border); 
-  border-radius: 8px; 
-  padding: 10px 14px;
-  display: flex; 
-  flex-direction: column; 
-  gap: 6px; 
-  z-index: 10;
+  position: absolute; bottom: 14px; left: 14px; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;
+  display: flex; flex-direction: column; gap: 6px; z-index: 10;
   box-shadow: 0 2px 8px var(--shadow);
 }
 
-.leg-item { 
-  display: flex; 
-  align-items: center; 
-  gap: 8px; 
-  font-size: 10px; 
-  color: var(--muted); 
-}
-
-.leg-dot { 
-  width: 10px; 
-  height: 10px; 
-  border-radius: 50%; 
-  flex-shrink: 0; 
-  border: 1.5px solid; 
-}
+.leg-item { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--muted); }
+.leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; border: 1.5px solid; }
 
 .toast {
-  position: absolute; 
-  bottom: 20px; 
-  left: 50%; 
-  transform: translateX(-50%) translateY(80px);
-  background: var(--panel); 
-  border: 1px solid var(--border); 
-  border-radius: 8px;
-  padding: 10px 20px; 
-  font-size: 12px; 
-  font-weight: bold; 
-  color: var(--text);
-  transition: transform .3s cubic-bezier(.34,1.56,.64,1); 
-  pointer-events: none;
-  white-space: nowrap; 
-  z-index: 20; 
-  box-shadow: 0 4px 20px var(--shadow);
+  position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 20px; font-size: 12px; font-weight: bold; color: var(--text);
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1); pointer-events: none;
+  white-space: nowrap; z-index: 20; box-shadow: 0 4px 20px var(--shadow);
 }
 
 .toast.on { transform: translateX(-50%) translateY(0); }
@@ -729,177 +531,54 @@ canvas {
    MEDIA QUERIES - DISEÑO SIDEBAR MÓVIL
 ══════════════════════════════════════ */
 @media (max-width: 768px) {
-  .hdr { 
-    padding: 10px 14px; 
-    gap: 10px; 
-  }
-  
-  .hdr-tag, .stat-lbl { 
-    display: none; 
-  }
-  
-  .stats { 
-    gap: 10px; 
-  }
-  
-  .stat::before { 
-    content: '🔸'; 
-    font-size: 7px; 
-    margin-right: 4px; 
-    color: var(--accent2); 
-  }
-  
-  .menu-btn-mobile {
-    display: flex;
-    font-size: 18px;
-    flex-shrink: 0;
-  }
-  
-  .hdr-title {
-    flex-grow: 1; 
-  }
+  .hdr { padding: 10px 14px; gap: 10px; }
+  .hdr-tag, .stat-lbl { display: none; }
+  .stats { gap: 10px; }
+  .stat::before { content: '🔸'; font-size: 7px; margin-right: 4px; color: var(--accent2); }
+  .menu-btn-mobile { display: flex; font-size: 18px; flex-shrink: 0; }
+  .hdr-title { flex-grow: 1; }
 
   .toolbar {
-    position: fixed;
-    top: 0;
-    left: -320px; 
-    right: auto;
-    width: 300px; 
-    max-width: 85vw; 
-    height: 100dvh;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
-    z-index: 100;
-    padding: 20px;
-    box-shadow: 5px 0 25px rgba(0,0,0,0.7); 
-    overflow-y: auto;
-    box-sizing: border-box; 
+    position: fixed; top: 0; left: -320px; right: auto; width: 300px; max-width: 85vw; height: 100dvh;
+    flex-direction: column; align-items: stretch; justify-content: flex-start; z-index: 100; padding: 20px;
+    box-shadow: 5px 0 25px rgba(0,0,0,0.7); overflow-y: auto; box-sizing: border-box; 
   }
 
-  .toolbar.open {
-    left: 0; 
-  }
+  .toolbar.open { left: 0; }
 
-  .mobile-menu-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 15px;
-    margin-bottom: 15px;
-  }
+  .mobile-menu-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 15px; }
+  .mobile-menu-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--text); }
+  .close-menu-btn { background: none; border: none; color: var(--text); font-size: 20px; cursor: pointer; padding: 5px; }
 
-  .mobile-menu-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    color: var(--text);
-  }
+  .sec { border-right: none; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 18px; margin-bottom: 18px; width: 100%; box-sizing: border-box; }
+  .sec:last-child { border-bottom: none; margin-bottom: 0; }
 
-  .close-menu-btn {
-    background: none;
-    border: none;
-    color: var(--text);
-    font-size: 20px;
-    cursor: pointer;
-    padding: 5px;
-  }
-
-  .sec {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    padding-right: 0;
-    padding-bottom: 18px;
-    margin-bottom: 18px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .sec:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-  }
-
-  .row { 
-    flex-wrap: nowrap; 
-    width: 100%;
-    box-sizing: border-box; 
-  }
-  
-  input[type=number] { 
-    flex: 1; 
-    width: 100%; 
-    height: 42px; 
-    font-size: 16px; 
-    min-width: 0; 
-  }
-  
-  .btn { 
-    height: 42px; 
-    font-size: 13px; 
-    flex-shrink: 0; 
-    width: auto;
-  }
-  
-  #pSize {
-    flex: none;
-    width: 65px;
-  }
+  .row { flex-wrap: nowrap; width: 100%; box-sizing: border-box; }
+  input[type=number] { flex: 1; width: 100%; height: 42px; font-size: 16px; min-width: 0; }
+  .btn { height: 42px; font-size: 13px; flex-shrink: 0; width: auto; }
+  #pSize { flex: none; width: 65px; }
 
   .log-sec { height: 200px; max-width: 100%; }
 
-  .traversals {
-    top: auto; 
-    bottom: 85px; 
-    left: 10px; 
-    right: 10px;
-    padding: 10px;
-    font-size: 10px;
-  }
+  .traversals { top: auto; bottom: 85px; left: 10px; right: 10px; padding: 10px; font-size: 10px; }
   .trav-row { flex-wrap: wrap; gap: 4px; }
   .trav-lbl { width: 100%; }
 
-  .legend {
-    bottom: auto; 
-    top: calc(100% - 60px); 
-    left: 10px; 
-    right: 60px; 
-    flex-direction: row; 
-    flex-wrap: wrap;
-    padding: 6px 10px;
-  }
+  .legend { bottom: auto; top: calc(100% - 60px); left: 10px; right: 60px; flex-direction: row; flex-wrap: wrap; padding: 6px 10px; }
   .leg-item { font-size: 9px; }
   .zoom { right: 10px; bottom: 20px; }
 }
+
 .credit-footer {
-  position: absolute;
-  bottom: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 1px;
-  color: var(--accent2);
-  opacity: 0.85;
-  z-index: 10;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: all .2s;
-  cursor: pointer;
+  position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 1px; color: var(--accent2); opacity: 0.85; z-index: 10;
+  text-decoration: none; white-space: nowrap; transition: all .2s; cursor: pointer;
 }
 
-.credit-footer:hover {
-  opacity: 1;
-  color: var(--accent);
-  text-shadow: 0 0 8px var(--accent2);
-}
+.credit-footer:hover { opacity: 1; color: var(--accent); text-shadow: 0 0 8px var(--accent2); }
 
 @media (max-width: 768px) {
-  .credit-footer {
-    bottom: 3px;
-    font-size: 9px;
-  }
+  .credit-footer { bottom: 3px; font-size: 9px; }
 }
 </style>
 </head>
@@ -974,9 +653,13 @@ canvas {
     </div>
   </div>
 
+  <!-- ════ 2. SECCIÓN DE GUARDADO Y ENLACE PARA COMPARTIR ACTUALIZADA ════ -->
   <div class="sec">
-    <div class="sec-lbl">Progreso Guardado</div>
-    <button class="btn btn-gh btn-w" onclick="saveCurrentTree()">Guardar Estado Actual</button>
+    <div class="sec-lbl">Progreso Guardado / Compartir</div>
+    <div class="row">
+      <button class="btn btn-gh btn-w" onclick="saveCurrentTree()">Guardar Local</button>
+      <button class="btn btn-acc btn-w" onclick="shareTree()" title="Copiar enlace del árbol">🔗 Compartir</button>
+    </div>
     <div class="saved-list" id="savedList"></div>
   </div>
 
@@ -1032,195 +715,71 @@ function toggleMenu() {
 ══════════════════════════════════════ */
 const LANG = {
   es: {
-    tag: 'Árbol auto-balanceado', 
-    snodes: 'nodos', 
-    sheight: 'altura', 
-    srot: 'rotaciones',
-    ins: 'Insertar', 
-    del: 'Eliminar', 
-    find: 'Buscar', 
-    search: 'Buscar', 
-    val: 'valor', 
-    psize: 'Cantidad',
-    presets: 'Presets', 
-    pbal: 'Bal', 
-    pseq: 'Seq', 
-    rnd: 'Rnd',
-    clr: 'Limpiar árbol', 
-    spd: 'Velocidad', 
-    slow: 'Lento', 
-    log: 'Registro',
-    lnew: 'nuevo nodo', 
-    lpath: 'recorrido', 
-    lfound: 'encontrado', 
-    lrot: 'rotación',
-    ready: 'AVL listo', 
-    hint: 'insertar · eliminar · buscar',
-    ins_ok: 'Insertado', 
-    del_ok: 'Eliminado', 
-    found: 'Encontrado',
-    cleared: 'Árbol limpio', 
-    invalid: 'Valor inválido', 
-    exists: 'ya existe', 
-    notfound: 'no encontrado',
-    cmp_l: '{{v}} < {{n}}  →  izquierda', 
-    cmp_r: '{{v}} > {{n}}  →  derecha', 
-    cmp_eq: '{{v}} = {{n}}  →  ¡encontrado!',
-    placed: 'Colocado en {{n}}', 
-    checking_bal: 'Verificando balance en {{n}} (b={{b}})',
-    rot_why: 'Desbalance {{b}} — rebalanceando…',
-    rotR: 'Rotación derecha  ↻  en {{n}}', 
-    rotL: 'Rotación izquierda  ↺  en {{n}}',
-    rotLR: 'Rotación Doble  Izq→Der  en {{n}}', 
-    rotRL: 'Rotación Doble  Der→Izq  en {{n}}',
-    del_here: 'Eliminando {{v}}', 
-    del_succ: 'Sucesor toma su lugar',
-    loaded: 'Preset cargado', 
-    rnd_n: 'Árbol aleatorio · {{n}} nodos', 
+    tag: 'Árbol auto-balanceado', snodes: 'nodos', sheight: 'altura', srot: 'rotaciones',
+    ins: 'Insertar', del: 'Eliminar', find: 'Buscar', search: 'Buscar', val: 'valor',
+    psize: 'Cantidad', presets: 'Presets', pbal: 'Bal', pseq: 'Seq', rnd: 'Rnd',
+    clr: 'Limpiar árbol', spd: 'Velocidad', slow: 'Lento', log: 'Registro',
+    lnew: 'nuevo nodo', lpath: 'recorrido', lfound: 'encontrado', lrot: 'rotación',
+    ready: 'AVL listo', hint: 'insertar · eliminar · buscar', ins_ok: 'Insertado', 
+    del_ok: 'Eliminado', found: 'Encontrado', cleared: 'Árbol limpio', invalid: 'Valor inválido', 
+    exists: 'ya existe', notfound: 'no encontrado', cmp_l: '{{v}} < {{n}}  →  izquierda', 
+    cmp_r: '{{v}} > {{n}}  →  derecha', cmp_eq: '{{v}} = {{n}}  →  ¡encontrado!',
+    placed: 'Colocado en {{n}}', checking_bal: 'Verificando balance en {{n}} (b={{b}})',
+    rot_why: 'Desbalance {{b}} — rebalanceando…', rotR: 'Rotación derecha  ↻  en {{n}}', 
+    rotL: 'Rotación izquierda  ↺  en {{n}}', rotLR: 'Rotación Doble  Izq→Der  en {{n}}', 
+    rotRL: 'Rotación Doble  Der→Izq  en {{n}}', del_here: 'Eliminando {{v}}', 
+    del_succ: 'Sucesor toma su lugar', loaded: 'Preset cargado', rnd_n: 'Árbol aleatorio · {{n}} nodos', 
     empty: 'inserta un valor para comenzar'
   },
   en: {
-    tag: 'Self-balancing BST', 
-    snodes: 'nodes', 
-    sheight: 'height', 
-    srot: 'rotations',
-    ins: 'Insert', 
-    del: 'Delete', 
-    find: 'Find', 
-    search: 'Search', 
-    val: 'value', 
-    psize: 'Quantity',
-    presets: 'Presets', 
-    pbal: 'Bal', 
-    pseq: 'Seq', 
-    rnd: 'Rnd',
-    clr: 'Clear tree', 
-    spd: 'Speed', 
-    slow: 'Slow', 
-    log: 'Log',
-    lnew: 'new node', 
-    lpath: 'traversal', 
-    lfound: 'found', 
-    lrot: 'rotation',
-    ready: 'AVL ready', 
-    hint: 'insert · delete · find',
-    ins_ok: 'Inserted', 
-    del_ok: 'Deleted', 
-    found: 'Found',
-    cleared: 'Tree cleared', 
-    invalid: 'Invalid value', 
-    exists: 'already exists', 
-    notfound: 'not found',
-    cmp_l: '{{v}} < {{n}}  →  left', 
-    cmp_r: '{{v}} > {{n}}  →  right', 
-    cmp_eq: '{{v}} = {{n}}  →  found!',
-    placed: 'Placed at {{n}}', 
-    checking_bal: 'Checking balance at {{n}} (b={{b}})',
-    rot_why: 'Imbalance {{b}} — rebalancing…',
-    rotR: 'Right rotation  ↻  at {{n}}', 
-    rotL: 'Left rotation  ↺  at {{n}}',
-    rotLR: 'Double Rotation  L→R  at {{n}}', 
-    rotRL: 'Double Rotation  R→L  at {{n}}',
-    del_here: 'Deleting {{v}}', 
-    del_succ: 'Successor takes its place',
-    loaded: 'Preset loaded', 
-    rnd_n: 'Random tree · {{n}} nodes', 
+    tag: 'Self-balancing BST', snodes: 'nodes', sheight: 'height', srot: 'rotations',
+    ins: 'Insert', del: 'Delete', find: 'Find', search: 'Search', val: 'value',
+    psize: 'Quantity', presets: 'Presets', pbal: 'Bal', pseq: 'Seq', rnd: 'Rnd',
+    clr: 'Clear tree', spd: 'Speed', slow: 'Slow', log: 'Log',
+    lnew: 'new node', lpath: 'traversal', lfound: 'found', lrot: 'rotation',
+    ready: 'AVL ready', hint: 'insert · delete · find', ins_ok: 'Inserted', 
+    del_ok: 'Deleted', found: 'Found', cleared: 'Tree cleared', invalid: 'Invalid value', 
+    exists: 'already exists', notfound: 'not found', cmp_l: '{{v}} < {{n}}  →  left', 
+    cmp_r: '{{v}} > {{n}}  →  right', cmp_eq: '{{v}} = {{n}}  →  found!',
+    placed: 'Placed at {{n}}', checking_bal: 'Checking balance at {{n}} (b={{b}})',
+    rot_why: 'Imbalance {{b}} — rebalancing…', rotR: 'Right rotation  ↻  at {{n}}', 
+    rotL: 'Left rotation  ↺  at {{n}}', rotLR: 'Double Rotation  L→R  at {{n}}', 
+    rotRL: 'Double Rotation  R→L  at {{n}}', del_here: 'Deleting {{v}}', 
+    del_succ: 'Successor takes its place', loaded: 'Preset loaded', rnd_n: 'Random tree · {{n}} nodes', 
     empty: 'insert a value to begin'
   },
   fr: {
-    tag: 'ABR auto-équilibré', 
-    snodes: 'nœuds', 
-    sheight: 'hauteur', 
-    srot: 'rotations',
-    ins: 'Insérer', 
-    del: 'Supprimer', 
-    find: 'Chercher', 
-    search: 'Chercher', 
-    val: 'valeur', 
-    psize: 'Quantité',
-    presets: 'Préréglages', 
-    pbal: 'Équ', 
-    pseq: 'Séq', 
-    rnd: 'Aléatoire',
-    clr: "Vider l'arbre", 
-    spd: 'Vitesse', 
-    slow: 'Lent', 
-    log: 'Journal',
-    lnew: 'nouveau nœud', 
-    lpath: 'parcours', 
-    lfound: 'trouvé', 
-    lrot: 'rotation',
-    ready: 'AVL prêt', 
-    hint: 'insérer · supprimer · chercher',
-    ins_ok: 'Inséré', 
-    del_ok: 'Supprimé', 
-    found: 'Trouvé',
-    cleared: 'Arbre vidé', 
-    invalid: 'Valeur invalide', 
-    exists: 'existe déjà', 
-    notfound: 'non trouvé',
-    cmp_l: '{{v}} < {{n}}  →  gauche', 
-    cmp_r: '{{v}} > {{n}}  →  droite', 
-    cmp_eq: '{{v}} = {{n}}  →  trouvé!',
-    placed: 'Placé à {{n}}', 
-    checking_bal: 'Vérification équilibre en {{n}} (b={{b}})',
-    rot_why: 'Déséquilibre {{b}} — rééquilibrage…',
-    rotR: 'Rotation droite  ↻  en {{n}}', 
-    rotL: 'Rotation gauche  ↺  en {{n}}',
-    rotLR: 'Rotation Double  G→D  en {{n}}', 
-    rotRL: 'Rotation Double  D→G  en {{n}}',
-    del_here: 'Suppression {{v}}', 
-    del_succ: 'Le successeur prend sa place',
-    loaded: 'Préréglage chargé', 
-    rnd_n: 'Arbre aléatoire · {{n}} nœuds', 
+    tag: 'ABR auto-équilibré', snodes: 'nœuds', sheight: 'hauteur', srot: 'rotations',
+    ins: 'Insérer', del: 'Supprimer', find: 'Chercher', search: 'Chercher', val: 'valeur',
+    psize: 'Quantité', presets: 'Préréglages', pbal: 'Équ', pseq: 'Séq', rnd: 'Aléatoire',
+    clr: "Vider l'arbre", spd: 'Vitesse', slow: 'Lent', log: 'Journal',
+    lnew: 'nouveau nœud', lpath: 'parcours', lfound: 'trouvé', lrot: 'rotation',
+    ready: 'AVL prêt', hint: 'insérer · supprimer · chercher', ins_ok: 'Inséré', 
+    del_ok: 'Supprimé', found: 'Trouvé', cleared: 'Arbre vidé', invalid: 'Valeur invalide', 
+    exists: 'existe déjà', notfound: 'non trouvé', cmp_l: '{{v}} < {{n}}  →  gauche', 
+    cmp_r: '{{v}} > {{n}}  →  droite', cmp_eq: '{{v}} = {{n}}  →  trouvé!',
+    placed: 'Placé à {{n}}', checking_bal: 'Vérification équilibre en {{n}} (b={{b}})',
+    rot_why: 'Déséquilibre {{b}} — rééquilibrage…', rotR: 'Rotation droite  ↻  en {{n}}', 
+    rotL: 'Rotation gauche  ↺  en {{n}}', rotLR: 'Rotation Double  G→D  en {{n}}', 
+    rotRL: 'Rotation Double  D→G  en {{n}}', del_here: 'Suppression {{v}}', 
+    del_succ: 'Le successeur prend sa place', loaded: 'Préréglage chargé', rnd_n: 'Arbre aléatoire · {{n}} nœuds', 
     empty: 'insère une valeur pour commencer'
   },
   pt: {
-    tag: 'ABB auto-balanceado', 
-    snodes: 'nós', 
-    sheight: 'altura', 
-    srot: 'rotações',
-    ins: 'Inserir', 
-    del: 'Remover', 
-    find: 'Buscar', 
-    search: 'Buscar', 
-    val: 'valor', 
-    psize: 'Quantidade',
-    presets: 'Predefinidos', 
-    pbal: 'Bal', 
-    pseq: 'Seq', 
-    rnd: 'Aleatório',
-    clr: 'Limpar árvore', 
-    spd: 'Velocidade', 
-    slow: 'Lento', 
-    log: 'Registro',
-    lnew: 'novo nó', 
-    lpath: 'percurso', 
-    lfound: 'encontrado', 
-    lrot: 'rotação',
-    ready: 'AVL pronto', 
-    hint: 'inserir · remover · buscar',
-    ins_ok: 'Inserido', 
-    del_ok: 'Removido', 
-    found: 'Encontrado',
-    cleared: 'Árvore limpa', 
-    invalid: 'Valor inválido', 
-    exists: 'já existe', 
-    notfound: 'não encontrado',
-    cmp_l: '{{v}} < {{n}}  →  esquerda', 
-    cmp_r: '{{v}} > {{n}}  →  direita', 
-    cmp_eq: '{{v}} = {{n}}  →  encontrado!',
-    placed: 'Colocado em {{n}}', 
-    checking_bal: 'Verificando balanço em {{n}} (b={{b}})',
-    rot_why: 'Desequilíbrio {{b}} — rebalanceando…',
-    rotR: 'Rotação direita  ↻  em {{n}}', 
-    rotL: 'Rotação esquerda  ↺  em {{n}}',
-    rotLR: 'Rotação Dupla  E→D  em {{n}}', 
-    rotRL: 'Rotação Dupla  D→E  em {{n}}',
-    del_here: 'Removendo {{v}}', 
-    del_succ: 'Sucessor no lugar',
-    loaded: 'Preset carregado', 
-    rnd_n: 'Árvore aleatória · {{n}} nós', 
+    tag: 'ABB auto-balanceado', snodes: 'nós', sheight: 'altura', srot: 'rotações',
+    ins: 'Inserir', del: 'Remover', find: 'Buscar', search: 'Buscar', val: 'valor',
+    psize: 'Quantidade', presets: 'Predefinidos', pbal: 'Bal', pseq: 'Seq', rnd: 'Aleatório',
+    clr: 'Limpar árvore', spd: 'Velocidade', slow: 'Lento', log: 'Registro',
+    lnew: 'novo nó', lpath: 'percurso', lfound: 'encontrado', lrot: 'rotação',
+    ready: 'AVL pronto', hint: 'inserir · remover · buscar', ins_ok: 'Inserido', 
+    del_ok: 'Removido', found: 'Encontrado', cleared: 'Árvore limpa', invalid: 'Valor inválido', 
+    exists: 'já existe', notfound: 'não encontrado', cmp_l: '{{v}} < {{n}}  →  esquerda', 
+    cmp_r: '{{v}} > {{n}}  →  direita', cmp_eq: '{{v}} = {{n}}  →  encontrado!',
+    placed: 'Colocado em {{n}}', checking_bal: 'Verificando balanço em {{n}} (b={{b}})',
+    rot_why: 'Desequilíbrio {{b}} — rebalanceando…', rotR: 'Rotação direita  ↻  em {{n}}', 
+    rotL: 'Rotação esquerda  ↺  em {{n}}', rotLR: 'Rotação Dupla  E→D  em {{n}}', 
+    rotRL: 'Rotação Dupla  D→E  em {{n}}', del_here: 'Removendo {{v}}', 
+    del_succ: 'Sucessor no lugar', loaded: 'Preset carregado', rnd_n: 'Árvore aleatória · {{n}} nós', 
     empty: 'insira um valor para começar'
   }
 };
@@ -1281,6 +840,8 @@ function applyLegend() {
     dot.style.background = color.f; 
     dot.style.borderColor = color.s;
   });
+  // Actualizar meta theme-color para PWA móvil
+  document.getElementById('themeColorMeta').setAttribute('content', dark ? '#0e0e10' : '#f0f0f5');
 }
 
 function toggleTheme() {
@@ -1359,7 +920,7 @@ function updateTraversalsUI() {
 }
 
 /* ══════════════════════════════════════
-   GUARDADO LOCAL (LOCALSTORAGE)
+   GUARDADO LOCAL (LOCALSTORAGE) Y COMPARTIR URL
 ══════════════════════════════════════ */
 function saveCurrentTree() {
   if (busy || !AVL.root) { 
@@ -1377,6 +938,24 @@ function saveCurrentTree() {
   
   renderSavedList(); 
   showToast('Estado guardado', 'acc');
+}
+
+// ════ FUNCIÓN NUEVA: COMPARTIR ÁRBOL POR URL ════
+function shareTree() {
+  if (busy || !AVL.root) { 
+    showToast(T('empty'), 'err'); 
+    return; 
+  }
+  const nodes = getPreOrder(AVL.root).join(',');
+  const url = new URL(window.location.href);
+  url.searchParams.set('tree', nodes);
+  
+  navigator.clipboard.writeText(url.toString()).then(() => {
+    showToast('¡Enlace copiado al portapapeles!', 'acc');
+    log(`🔗 Enlace generado para ${countNodes(AVL.root)} nodos`, 'inf');
+  }).catch(() => {
+    showToast('Error al copiar el enlace', 'err');
+  });
 }
 
 function renderSavedList() {
@@ -1421,7 +1000,7 @@ function loadSavedTree(id) {
     log(`↓ ${T('loaded')} [${entry.nodes.length} nodos]`, 'inf');
     saveState(); 
     showToast(T('loaded'), 'acc');
-    
+    autoFit(); // Ajustar zoom automáticamente
     if (window.innerWidth <= 768) toggleMenu();
   }
 }
@@ -1515,6 +1094,7 @@ function restoreState(state) {
   doLayout(); 
   updateUndoRedoUI(); 
   updateTraversalsUI();
+  autoFit();
 }
 
 /* ══════════════════════════════════════
@@ -1818,6 +1398,7 @@ async function insertAnimated(val) {
   clearNodeColors(AVL.root); 
   busy = false; 
   saveState(); 
+  autoFit(); // Activar autozoom al finalizar inserción
 }
 
 async function deleteAnimated(val) {
@@ -1896,6 +1477,7 @@ async function deleteAnimated(val) {
   clearNodeColors(AVL.root); 
   busy = false; 
   saveState();
+  autoFit();
 }
 
 async function findAnimated(val) {
@@ -1982,8 +1564,7 @@ function getTreeHeight() {
 }
 
 /* ══════════════════════════════════════
-   MOTOR DE DIBUJO (CANVAS RENDERER)
-   ADAPTADO PARA MÓVILES
+   MOTOR DE DIBUJO (CANVAS RENDERER) Y AUTO-FIT
 ══════════════════════════════════════ */
 const canvas = document.getElementById('cv');
 const ctx = canvas.getContext('2d');
@@ -1993,6 +1574,27 @@ const isMobile = () => window.innerWidth <= 768;
 let panX = 0;
 let panY = isMobile() ? 100 : 40; 
 let currentScale = isMobile() ? 0.8 : 1; 
+
+// ════ 3. VARIABLES PARA SISTEMA DE AUTO-ZOOM ════
+let targetScale = currentScale;
+let autoZoomEnabled = true;
+
+function autoFit() {
+  if (!autoZoomEnabled || !AVL.root) return;
+  const W = canvas.offsetWidth;
+  const H = canvas.offsetHeight;
+  const treeW = layout(AVL.root, 0, 0);
+  const treeH = getTreeHeight() * getVerticalGap();
+  
+  const maxScale = isMobile() ? 0.8 : 1;
+  const minScale = 0.25;
+  
+  // Calcula la escala para que el árbol ocupe el 85% del ancho y 65% del alto
+  let scaleX = (W * 0.85) / Math.max(treeW, 1);
+  let scaleY = (H * 0.65) / Math.max(treeH, 1);
+  
+  targetScale = Math.max(minScale, Math.min(scaleX, scaleY, maxScale));
+}
 
 let isDragging = false, lastMouseX = 0, lastMouseY = 0;
 let curArrow = null;
@@ -2077,15 +1679,12 @@ function getNodeColor(colorKey) {
 
 function drawEdges(node) {
   if (!node) return;
-  // Cambiamos el color del modo claro a un tono casi negro 
   const edgeColor = dark ? '#3a3a58' : '#16161e';
   
   if (node.l) {
     ctx.save(); 
-    // Subimos la opacidad de 0.55 a 0.85 para que no se vean muy opacas
     ctx.globalAlpha = Math.min(node.a, node.l.a) * 0.85; 
     ctx.strokeStyle = edgeColor; 
-    // Aumentamos un poquito el grosor (de 1.5 a 2) para que resalten mas
     ctx.lineWidth = 2;
     ctx.beginPath(); 
     ctx.moveTo(node.x, node.y); 
@@ -2254,6 +1853,11 @@ function renderCanvas() {
   doLayout(); 
   animateNodes(AVL.root);
 
+  // Animación del zoom automático
+  if (!isPaused) {
+     currentScale = interpolate(currentScale, targetScale, 0.08);
+  }
+
   if (floatingNode) {
     floatingNode.tx = 0; 
     floatingNode.ty = -getVerticalGap() * 1.5;
@@ -2397,6 +2001,7 @@ function doClear() {
   log(`— ${T('cleared')}`, ''); 
   showToast(T('cleared')); 
   saveState();
+  autoFit();
   
   if (window.innerWidth <= 768) toggleMenu();
 }
@@ -2413,7 +2018,6 @@ function loadDynamicPreset(type, forceSize) {
   
   if (size < 1) size = 1; 
 
-  
   doClear(); 
   let array = [];
   
@@ -2440,6 +2044,7 @@ function loadDynamicPreset(type, forceSize) {
   
   log(`↓ Preset [${size} nodos]`, 'inf'); 
   saveState();
+  autoFit();
   
   if (window.innerWidth <= 768) toggleMenu();
 }
@@ -2514,8 +2119,9 @@ canvas.addEventListener('mousemove', e => {
 
 canvas.addEventListener('wheel', e => {
   e.preventDefault(); 
+  autoZoomEnabled = false; // Desactivar autozoom si el usuario hace zoom manual
   const scaleMultiplier = e.deltaY > 0 ? 0.9 : 1.1;
-  currentScale = Math.max(0.25, Math.min(3, currentScale * scaleMultiplier));
+  targetScale = Math.max(0.25, Math.min(3, currentScale * scaleMultiplier));
 }, { passive: false });
 
 canvas.addEventListener('touchstart', e => {
@@ -2537,13 +2143,15 @@ canvas.addEventListener('touchmove', e => {
 canvas.addEventListener('touchend', () => isDragging = false);
 
 function zoomBy(factor) { 
-  currentScale = Math.max(0.25, Math.min(3, currentScale * factor)); 
+  autoZoomEnabled = false;
+  targetScale = Math.max(0.25, Math.min(3, currentScale * factor)); 
 }
 
 function resetView() { 
   panX = 0; 
   panY = isMobile() ? 100 : 40; 
-  currentScale = isMobile() ? 0.8 : 1; 
+  autoZoomEnabled = true;
+  autoFit();
 }
 
 document.addEventListener('keydown', e => {
@@ -2773,12 +2381,36 @@ function parseVoice(textInput) {
 }
 
 /* ══════════════════════════════════════
-   INICIALIZACIÓN
+   INICIALIZACIÓN Y PWA Y CARGA DE ENLACES
 ══════════════════════════════════════ */
 log(T('ready'), 'inf'); 
 log(`— ${T('hint')}`, ''); 
 
 setSpeed(3); 
+
+// Registrar Service Worker (Para PWA)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW fallback', err));
+  });
+}
+
+// ════ LEER ÁRBOL COMPARTIDO POR URL ════
+const urlParams = new URLSearchParams(window.location.search);
+const treeParam = urlParams.get('tree');
+if (treeParam) {
+  const nodes = treeParam.split(',').map(Number).filter(n => !isNaN(n));
+  if (nodes.length > 0) {
+    doClear();
+    nodes.forEach(val => { AVL.root = silIns(AVL.root, val); });
+    log(`↓ Árbol compartido cargado [${nodes.length} nodos]`, 'inf');
+    
+    // Limpiar la URL visualmente para que no se vea el string largo
+    const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+    window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+  }
+}
+
 saveState(); 
 renderSavedList(); 
 renderCanvas();
@@ -2789,11 +2421,8 @@ renderCanvas();
 document.addEventListener('contextmenu', e => e.preventDefault());
 
 document.addEventListener('keydown', e => {
-  // F12
   if (e.key === 'F12') e.preventDefault();
-  // Ctrl+Shift+I / J / C (DevTools, Console, Inspector)
   if (e.ctrlKey && e.shiftKey && ['I','J','C','i','j','c'].includes(e.key)) e.preventDefault();
-  // Ctrl+U (ver código fuente)
   if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) e.preventDefault();
 });
 </script>
