@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="LOGO3.jpeg" type="image/jpeg" sizes="96x96">
 <title>Simulador de Árboles AVL — Rotaciones y Comandos de Voz</title>
 <meta name="description" content="Simulador interactivo de árboles AVL: inserta, elimina y busca nodos, observa las rotaciones LL/RR/LR/RL en tiempo real y contrólalo por voz en 4 idiomas.">
@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary_large_image">
 
 <!-- ════ 4. BASE PARA PWA (PROGRESIVE WEB APP) ════ -->
-<meta name="theme-color" content="#0e0e10" id="themeColorMeta">
+<meta name="theme-color" content="#f0f0f5" id="themeColorMeta">
 <link rel="apple-touch-icon" href="LOGO3.jpeg">
 <link rel="manifest" href="manifest.json">
 
@@ -49,7 +49,7 @@
   --accent: #e8ff47; 
   --accent2: #47c8ff; 
   --text: #e8e8f0; 
-  --muted: #6b6b80;
+  --muted: #9a9ab0;
   --danger: #ff6b6b; 
   --warn: #ffb347; 
   --radius: 8px;
@@ -58,7 +58,7 @@
   --scroll: #2a2a35;
 }
 
-[data-theme="light"] {
+:root[data-theme="light"] {
   --bg: #f0f0f5; 
   --surface: #ffffff; 
   --panel: #f5f5fa; 
@@ -66,7 +66,7 @@
   --accent: #4a6800; 
   --accent2: #0055a0; 
   --text: #16161e; 
-  --muted: #80809a;
+  --muted: #5a5a6e;
   --danger: #c02020; 
   --warn: #b86000;
   --grid: #d8d8ea; 
@@ -307,7 +307,7 @@ input[type=number]::placeholder { color: var(--muted); font-size: 12px; }
 .btn-gh { background: var(--panel); color: var(--text); border: 1px solid var(--border); }
 .btn-gh:hover { border-color: var(--accent2); color: var(--accent2); }
 
-.btn-del { background: transparent; color: var(--danger); border: 1px solid var(--danger); opacity: .65; }
+.btn-del { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
 .btn-del:hover { opacity: 1; background: rgba(255,80,80,.07); }
 
 .btn-w { width: 100%; }
@@ -594,7 +594,7 @@ canvas {
   <button class="hbtn menu-btn-mobile" onclick="toggleMenu()" title="Menú">☰</button>
   
 <h1 class="hdr-title">AVL <em>Tree</em> Pro</h1>
-  <div class="hdr-tag" data-i="tag">Árbol auto-balanceado</div>
+  <div class="hdr-tag" data-i="tag"></div>
   
   <div class="hdr-right">
     <div class="stats">
@@ -602,7 +602,7 @@ canvas {
       <div class="stat"><span class="stat-lbl" data-i="sheight">altura</span><span class="stat-n" id="sH">0</span></div>
       <div class="stat"><span class="stat-lbl" data-i="srot">rotaciones</span><span class="stat-n" id="sR">0</span></div>
     </div>
-    <select class="lang-sel" id="langSel" onchange="setLang(this.value)">
+   <select class="lang-sel" id="langSel" onchange="setLang(this.value)" aria-label="Seleccionar idioma">
       <option value="es">ES</option>
       <option value="en">EN</option>
       <option value="fr">FR</option>
@@ -611,7 +611,7 @@ canvas {
     <button class="hbtn" id="undoBtn" onclick="doUndo()" title="Deshacer" disabled>↶</button>
     <button class="hbtn" id="pauseBtn" onclick="togglePause()" title="Pausar / Reanudar">⏸</button>
     <button class="hbtn" id="redoBtn" onclick="doRedo()" title="Rehacer" disabled>↷</button>
-    <button class="hbtn" id="themeBtn" onclick="toggleTheme()">☀</button>
+  <button class="hbtn" id="themeBtn" onclick="toggleTheme()">☾</button>
     <button class="hbtn" id="micBtn" onclick="toggleMic()">🎙</button>
   </div>
 </header>
@@ -625,15 +625,15 @@ canvas {
   <div class="sec">
     <div class="sec-lbl">Operaciones</div>
     <div class="row">
-      <input type="number" id="iVal" data-i-ph="val" placeholder="valor"/>
+      <input type="number" id="iVal" data-i-ph="val" placeholder="valor" aria-label="Valor a insertar"/>
       <button class="btn btn-acc" onclick="doInsert()" data-i="ins">Insertar</button>
     </div>
     <div class="row">
-      <input type="number" id="dVal" data-i-ph="val" placeholder="valor"/>
+      <input type="number" id="dVal" data-i-ph="val" placeholder="valor" aria-label="Valor a eliminar"/>
       <button class="btn btn-gh" onclick="doDelete()" data-i="del">Eliminar</button>
     </div>
     <div class="row">
-      <input type="number" id="fVal" data-i-ph="val" placeholder="valor"/>
+      <input type="number" id="fVal" data-i-ph="val" placeholder="valor" aria-label="Valor a buscar"/>
       <button class="btn btn-gh" onclick="doFind()" data-i="search">Buscar</button>
     </div>
   </div>
@@ -650,7 +650,7 @@ canvas {
     </div>
     <button class="btn btn-del btn-w" data-i="clr" onclick="doClear()">Limpiar árbol</button>
     <div class="spd-row">
-      <span class="spd-lbl" data-i="spd">Vel.</span>
+      <label for="spdSlider" class="spd-lbl" data-i="spd">Vel.</label>
       <input type="range" id="spdSlider" min="1" max="10" step="0.5" value="3" oninput="setSpeed(this.value)">
       <span class="spd-val" id="spdVal">3x</span>
     </div>
@@ -820,7 +820,7 @@ function setLang(langCode) {
 /* ══════════════════════════════════════
    SISTEMA DE TEMAS (DARK / LIGHT)
 ══════════════════════════════════════ */
-let dark = true;
+let dark = false;
 
 const LEG_DARK = [
   { f: '#0d2233', s: '#47c8ff' }, 
