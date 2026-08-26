@@ -467,9 +467,41 @@ canvas {
 .traversals {
   position: absolute; top: 14px; right: 14px; left: auto;
   background: rgba(28, 28, 34, 0.85); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-  border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px;
-  display: flex; flex-direction: column; gap: 8px; z-index: 5; pointer-events: none;
+  border: 1px solid var(--border); border-radius: 8px; 
+  display: flex; flex-direction: column; z-index: 5; 
+  pointer-events: auto; /* <--- CRUCIAL: Esto permite hacer clic */
   box-shadow: 0 4px 15px var(--shadow);
+  overflow: hidden;
+}
+.trav-header {
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--accent2);
+  user-select: none;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.trav-content {
+  padding: 4px 16px 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+  max-height: 200px;
+  opacity: 1;
+}
+
+/* Clase dinámica que aplicaremos con JavaScript para ocultar */
+.traversals.collapsed .trav-content {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
 }
 
 [data-theme="light"] .traversals { background: rgba(245, 245, 250, 0.85); }
@@ -675,9 +707,17 @@ canvas {
   <canvas id="cv"></canvas>
   
   <div class="traversals" id="traversals">
-    <div class="trav-row"><span class="trav-lbl">PreOrden:</span> <span class="trav-val" id="tPre">-</span></div>
-    <div class="trav-row"><span class="trav-lbl">InOrden:</span> <span class="trav-val" id="tIn">-</span></div>
-    <div class="trav-row"><span class="trav-lbl">PosOrden:</span> <span class="trav-val" id="tPos">-</span></div>
+    <!-- Encabezado clickeable -->
+    <div class="trav-header" onclick="toggleTraversals()">
+      <span>Recorridos</span>
+      <span id="travIcon">▼</span>
+    </div>
+    <!-- Contenido que se va a ocultar/mostrar -->
+    <div id="travContent" class="trav-content">
+      <div class="trav-row"><span class="trav-lbl">PreOrden:</span> <span class="trav-val" id="tPre">-</span></div>
+      <div class="trav-row"><span class="trav-lbl">InOrden:</span> <span class="trav-val" id="tIn">-</span></div>
+      <div class="trav-row"><span class="trav-lbl">PosOrden:</span> <span class="trav-val" id="tPos">-</span></div>
+    </div>
   </div>
 
   <div class="banner" id="banner"></div>
@@ -2224,6 +2264,23 @@ function toggleMic() {
     btn.classList.add('mic-on'); 
     btn.textContent = '🔴'; 
     showToast('Escuchando…'); 
+  }
+}
+/* ══════════════════════════════════════
+   TOGGLE PANEL DE RECORRIDOS
+══════════════════════════════════════ */
+function toggleTraversals() {
+  const travBox = document.getElementById('traversals');
+  const travIcon = document.getElementById('travIcon');
+  
+  // Alterna la clase 'collapsed'
+  travBox.classList.toggle('collapsed');
+  
+  // Cambia la flechita según el estado
+  if (travBox.classList.contains('collapsed')) {
+    travIcon.textContent = '▲';
+  } else {
+    travIcon.textContent = '▼';
   }
 }
 
