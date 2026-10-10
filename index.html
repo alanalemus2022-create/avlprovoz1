@@ -704,6 +704,37 @@ canvas {
 @media (max-width: 768px) {
   .credit-footer { bottom: 3px; font-size: 9px; }
 }
+
+/* ══════════════════════════════════════
+   ALERTA DE ACTUALIZACIÓN DE CACHÉ
+══════════════════════════════════════ */
+.update-banner {
+  display: none;
+  position: fixed; 
+  bottom: 80px; 
+  left: 50%; 
+  transform: translateX(-50%);
+  background: var(--accent2); 
+  color: #fff; 
+  padding: 12px 24px;
+  border-radius: 12px; 
+  z-index: 9999; 
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; 
+  font-size: 14px;
+  cursor: pointer; 
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+  text-align: center;
+  white-space: nowrap;
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.update-banner:hover { 
+  transform: translateX(-50%) scale(1.05); 
+}
+@keyframes popIn { 
+  0% { opacity: 0; transform: translate(-50%, 30px); } 
+  100% { opacity: 1; transform: translate(-50%, 0); } 
+}
 </style>
 </head>
 <body>
@@ -869,7 +900,10 @@ canvas {
   <div class="toast" id="toast"></div>
   <a href="https://instagram.com/luisfcotes" target="_blank" class="credit-footer">By Luis Felipe Cotes</a>
 </main>
-
+<!-- ════ ALERTA DE ACTUALIZACIÓN ════ -->
+<div id="updateBanner" class="update-banner" onclick="forceUpdate()">
+  😎 ¡Nueva versión disponible! Clic para actualizar
+</div>
 </div>
 
 <script>
@@ -2743,10 +2777,48 @@ log(`— ${T('hint')}`, '');
 
 setSpeed(3); 
 
+/* ══════════════════════════════════════
+   INICIALIZACIÓN Y AUTO-ACTUALIZACIÓN PWA
+══════════════════════════════════════ */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW fallback', err));
+    navigator.serviceWorker.register('/sw.js').then(reg => {
+      // Escuchar si hay una nueva versión en el servidor
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        newWorker.addEventListener('statechange', () => {
+          // Si hay un nuevo SW y ya había uno viejo controlando la página
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            document.getElementById('updateBanner').style.display = 'block';
+          }
+        });
+      });
+    }).catch(err => console.log('SW fallback', err));
   });
+}
+
+// Función aniquiladora de caché
+function forceUpdate() {
+  const banner = document.getElementById('updateBanner');
+  banner.textContent = "Actualizando... ⏳";
+  
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      // 1. Desregistrar el trabajador actual
+      for(let registration of registrations) {
+        registration.unregister();
+      }
+      // 2. Limpiar todo el almacenamiento caché del navegador para esta web
+      caches.keys().then((keyList) => {
+        return Promise.all(keyList.map((key) => caches.delete(key)));
+      }).then(() => {
+        // 3. Forzar la recarga ignorando la caché (Hard Reload)
+        window.location.reload(true);
+      });
+    });
+  } else {
+    window.location.reload(true);
+  }
 }
 
 const urlParams = new URLSearchParams(window.location.search);
