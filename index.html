@@ -655,7 +655,7 @@ canvas {
   </div>
 
   <div class="sec">
-   
+    
     <div class="row">
       <input type="number" id="iVal" data-i-ph="val" placeholder="valor" aria-label="Valor a insertar"/>
       <button class="btn btn-acc" onclick="doInsert()" data-i="ins">Insertar</button>
@@ -2205,10 +2205,23 @@ document.addEventListener('keydown', e => {
 });
 
 /* ══════════════════════════════════════
-   SISTEMA DE RECONOCIMIENTO DE VOZ
+   SISTEMA DE RECONOCIMIENTO DE VOZ (ACTUALIZADO)
 ══════════════════════════════════════ */
 let recog = null; 
 let micActive = false;
+let currentVoiceMode = null; 
+
+function updateMicIcon() {
+  const btn = document.getElementById('micBtn');
+  if (!micActive) {
+    btn.textContent = '🎙';
+    return;
+  }
+  if (currentVoiceMode === 'insert') btn.textContent = '➕';
+  else if (currentVoiceMode === 'delete') btn.textContent = '➖';
+  else if (currentVoiceMode === 'find') btn.textContent = '🔍';
+  else btn.textContent = '🔴'; 
+}
 
 function initMic() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -2250,9 +2263,10 @@ function toggleMic() {
   
   if (micActive) { 
     micActive = false; 
+    currentVoiceMode = null; 
     if (recog) recog.stop(); 
     btn.classList.remove('mic-on'); 
-    btn.textContent = '🎙'; 
+    updateMicIcon();
     showToast('Micrófono apagado'); 
   } else { 
     recog = initMic(); 
@@ -2262,10 +2276,11 @@ function toggleMic() {
     recog.start(); 
     
     btn.classList.add('mic-on'); 
-    btn.textContent = '🔴'; 
+    updateMicIcon();
     showToast('Escuchando…'); 
   }
 }
+
 /* ══════════════════════════════════════
    TOGGLE PANEL DE RECORRIDOS
 ══════════════════════════════════════ */
@@ -2318,106 +2333,92 @@ function parseVoice(textInput) {
   const extractedNum = extractNumber(cleanText);
 
   if (/pausa|pausar|detener|pause|stop/.test(cleanText)) { 
-    if (!isPaused) togglePause(); 
-    return; 
+    if (!isPaused) togglePause(); return; 
   }
-  
   if (/continuar|reanudar|play|resume|seguir/.test(cleanText)) { 
-    if (isPaused) togglePause(); 
-    return; 
+    if (isPaused) togglePause(); return; 
   }
-  
   if (/deshacer|atrás|atras|undo|retour|voltar/.test(cleanText)) { 
-    doUndo(); 
-    return; 
+    doUndo(); return; 
   }
-  
   if (/rehacer|adelante|redo|refaire|refazer/.test(cleanText)) { 
-    doRedo(); 
-    return; 
+    doRedo(); return; 
   }
-  
+
+  // Cancelar modos
+  if (/cancelar|salir|normal|cancel|exit|quitter|sair/.test(cleanText)) {
+    currentVoiceMode = null;
+    updateMicIcon();
+    showToast('Modo normal activado', 'acc');
+    log('🎙 Modo por voz general', 'inf');
+    return;
+  }
+
   if (/balanceado|balanced|équilibré/.test(cleanText)) { 
-    loadDynamicPreset('bal', extractedNum !== null ? extractedNum : undefined); 
-    return; 
+    loadDynamicPreset('bal', extractedNum !== null ? extractedNum : undefined); return; 
   }
-  
   if (/secuencial|sequential|séquentiel/.test(cleanText)) { 
-    loadDynamicPreset('seq', extractedNum !== null ? extractedNum : undefined); 
-    return; 
+    loadDynamicPreset('seq', extractedNum !== null ? extractedNum : undefined); return; 
   }
-  
   if (/aleatorio|random|aléatoire|azar/.test(cleanText)) { 
-    loadDynamicPreset('rnd', extractedNum !== null ? extractedNum : undefined); 
-    return; 
+    loadDynamicPreset('rnd', extractedNum !== null ? extractedNum : undefined); return; 
   }
   
   if (/inglés|ingles|english|anglais|inglês/.test(cleanText)) { 
-    setLang('en'); 
-    document.getElementById('langSel').value = 'en'; 
-    showToast('Language: English'); 
-    return; 
+    setLang('en'); document.getElementById('langSel').value = 'en'; showToast('Language: English'); return; 
   }
-  
   if (/español|espanol|spanish|espagnol/.test(cleanText)) { 
-    setLang('es'); 
-    document.getElementById('langSel').value = 'es'; 
-    showToast('Idioma: Español'); 
-    return; 
+    setLang('es'); document.getElementById('langSel').value = 'es'; showToast('Idioma: Español'); return; 
   }
-  
   if (/oscuro|dark|sombre|escuro/.test(cleanText)) { 
-    if (!dark) toggleTheme(); 
-    showToast('Modo oscuro'); 
-    return; 
+    if (!dark) toggleTheme(); showToast('Modo oscuro'); return; 
   }
-  
   if (/claro|light|clair/.test(cleanText)) { 
-    if (dark) toggleTheme(); 
-    showToast('Modo claro'); 
-    return; 
+    if (dark) toggleTheme(); showToast('Modo claro'); return; 
   }
 
+  // Activar modos o ejecutar directo
   if (/insertar|inserir|insert|agregar|añadir|add|meter|poner|coloca/.test(cleanText)) { 
-    if (extractedNum === null) { 
-      showToast('¿Qué número?', 'err'); 
-      return; 
-    } 
-    document.getElementById('iVal').value = extractedNum; 
-    doInsert(); 
+    if (extractedNum !== null) { 
+      document.getElementById('iVal').value = extractedNum; doInsert(); 
+    } else {
+      currentVoiceMode = 'insert';
+      updateMicIcon();
+      showToast('Modo Inserción: di números', 'acc');
+      log('🎙 Modo Inserción activado', 'inf');
+    }
     return; 
   }
   
   if (/eliminar|borrar|delete|remove|supprimer|remover|quitar|sacar/.test(cleanText)) { 
-    if (extractedNum === null) { 
-      showToast('¿Qué número?', 'err'); 
-      return; 
-    } 
-    document.getElementById('dVal').value = extractedNum; 
-    doDelete(); 
+    if (extractedNum !== null) { 
+      document.getElementById('dVal').value = extractedNum; doDelete(); 
+    } else {
+      currentVoiceMode = 'delete';
+      updateMicIcon();
+      showToast('Modo Eliminación: di números', 'err');
+      log('🎙 Modo Eliminación activado', 'wn');
+    }
     return; 
   }
   
   if (/buscar|encontrar|find|search|chercher|busca|busque|dónde/.test(cleanText)) { 
-    if (extractedNum === null) { 
-      showToast('¿Qué número?', 'err'); 
-      return; 
-    } 
-    document.getElementById('fVal').value = extractedNum; 
-    doFind(); 
+    if (extractedNum !== null) { 
+      document.getElementById('fVal').value = extractedNum; doFind(); 
+    } else {
+      currentVoiceMode = 'find';
+      updateMicIcon();
+      showToast('Modo Búsqueda: di números', 'acc');
+      log('🎙 Modo Búsqueda activado', 'inf');
+    }
     return; 
   }
   
   if (/velocidad|speed|vitesse|rápido|lento|fast|slow/.test(cleanText)) {
     let speedVal = 3; 
-    
-    if (/rápido|rapido|fast|rapide|vite/.test(cleanText)) { 
-      speedVal = 7; 
-    } else if (/lento|slow|lent|despacio/.test(cleanText)) { 
-      speedVal = 1; 
-    } else if (extractedNum !== null && extractedNum >= 1 && extractedNum <= 10) { 
-      speedVal = extractedNum; 
-    }
+    if (/rápido|rapido|fast|rapide|vite/.test(cleanText)) speedVal = 7; 
+    else if (/lento|slow|lent|despacio/.test(cleanText)) speedVal = 1; 
+    else if (extractedNum !== null && extractedNum >= 1 && extractedNum <= 10) speedVal = extractedNum; 
     
     document.getElementById('spdSlider').value = speedVal; 
     setSpeed(speedVal); 
@@ -2426,13 +2427,25 @@ function parseVoice(textInput) {
   }
   
   if (/limpiar|borrar todo|clear|vider|limpar|vaciar|reiniciar|reset/.test(cleanText)) { 
-    doClear(); 
-    return; 
+    doClear(); return; 
   }
-  
   if (/guardar|salvar|save|sauvegarder/.test(cleanText)) { 
-    saveCurrentTree(); 
-    return; 
+    saveCurrentTree(); return; 
+  }
+
+  // SI SOLO SE DICE UN NÚMERO Y HAY UN MODO ACTIVO
+  if (extractedNum !== null && currentVoiceMode !== null) {
+    if (currentVoiceMode === 'insert') {
+      document.getElementById('iVal').value = extractedNum;
+      doInsert();
+    } else if (currentVoiceMode === 'delete') {
+      document.getElementById('dVal').value = extractedNum;
+      doDelete();
+    } else if (currentVoiceMode === 'find') {
+      document.getElementById('fVal').value = extractedNum;
+      doFind();
+    }
+    return;
   }
 
   showToast(`No entendí: "${textInput}"`, 'err'); 
