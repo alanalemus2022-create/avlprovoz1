@@ -10,14 +10,17 @@
 <link rel="canonical" href="https://avlprovoz1.onrender.com/" />
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 
-<!-- ════ 1. ETIQUETAS OPEN GRAPH PARA REDES SOCIALES ════ -->
+<!-- ════ LIBRERÍA OCR PARA LEER IMÁGENES CON IA ════ -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<!-- ════ ETIQUETAS OPEN GRAPH PARA REDES SOCIALES ════ -->
 <meta property="og:site_name" content="Simulador de Árboles AVL">
 <meta property="og:title" content="Simulador de Árboles AVL">
 <meta property="og:description" content="Simulador interactivo con rotaciones en tiempo real y control por voz. Construido con Canvas y JavaScript.">
 <meta property="og:image" content="https://avlprovoz1.onrender.com/LOGO3.jpeg">
 <meta name="twitter:card" content="summary_large_image">
 
-<!-- ════ 4. BASE PARA PWA (PROGRESIVE WEB APP) ════ -->
+<!-- ════ BASE PARA PWA (PROGRESIVE WEB APP) ════ -->
 <meta name="theme-color" content="#f0f0f5" id="themeColorMeta">
 <link rel="apple-touch-icon" href="/LOGO3.jpeg">
 <link rel="manifest" href="manifest.json">
@@ -92,7 +95,7 @@ html, body {
 }
 
 /* ══════════════════════════════════════
-   HEADER
+   HEADER & CUSTOM LOGO
 ══════════════════════════════════════ */
 .hdr {
   display: flex; 
@@ -103,6 +106,14 @@ html, body {
   background: var(--surface);
   transition: background .3s, border-color .3s;
   min-height: 52px;
+}
+
+/* ESTILOS DEL NUEVO LOGO */
+.hdr-logo {
+  height: 50px; /* <--- Aumentamos el alto al doble (puedes ponerle 80px si lo quieres aún más grande) */
+  max-width: 250px;
+  object-fit: contain;
+  margin-left: 5px;
 }
 
 .hdr-title { 
@@ -387,7 +398,7 @@ input[type=range]::-webkit-slider-thumb {
 .saved-list::-webkit-scrollbar-thumb { background: var(--scroll); border-radius: 2px; }
 
 /* ══════════════════════════════════════
-   OVERLAY DEL SIDEBAR
+   OVERLAY DEL SIDEBAR Y MODAL
 ══════════════════════════════════════ */
 .sidebar-overlay {
   position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 90;
@@ -395,6 +406,96 @@ input[type=range]::-webkit-slider-thumb {
   backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
 }
 .sidebar-overlay.active { opacity: 1; pointer-events: all; }
+
+.capture-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); z-index: 200;
+  display: flex; justify-content: center; align-items: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+  backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+}
+.capture-modal-overlay.active {
+  opacity: 1; pointer-events: all;
+}
+.capture-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px; 
+  width: 90%; max-width: 380px; 
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15); 
+  transform: translateY(20px) scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex; flex-direction: column; gap: 18px;
+}
+.capture-modal-overlay.active .capture-modal {
+  transform: translateY(0) scale(1);
+}
+.capture-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-bottom: 8px;
+}
+.capture-title {
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+}
+.capture-close {
+  background: var(--panel); border: 1px solid var(--border); color: var(--muted); 
+  width: 28px; height: 28px; border-radius: 50%; font-size: 14px; 
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s ease;
+}
+.capture-close:hover { color: var(--danger); border-color: var(--danger); }
+
+.capture-file-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  background: var(--panel); border: 1.5px dashed var(--border); border-radius: 12px;
+  padding: 24px 15px; color: var(--text); cursor: pointer; transition: all 0.2s ease;
+  text-align: center;
+}
+.capture-file-btn:hover { 
+  border-color: var(--accent2); background: rgba(71, 200, 255, 0.05); 
+}
+#captureFileInput { display: none; }
+
+.capture-status {
+  font-size: 11px; color: var(--muted); text-align: center; min-height: 15px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.capture-loader {
+  display: inline-block; width: 14px; height: 14px; border: 2px solid var(--accent2);
+  border-bottom-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;
+  display: none;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+.textarea-wrapper {
+  position: relative;
+  margin-top: 5px;
+}
+.textarea-badge {
+  position: absolute; top: -8px; left: 12px; background: var(--surface);
+  padding: 0 6px; font-size: 9px; font-weight: bold; color: var(--muted);
+  letter-spacing: 1px;
+}
+.capture-textarea {
+  width: 100%; height: 90px; background: var(--panel); border: 1px solid var(--border);
+  border-radius: 12px; color: var(--text); font-family: 'DM Mono', monospace;
+  padding: 16px; resize: none; font-size: 13px; outline: none; transition: border-color .2s;
+}
+.capture-textarea:focus { border-color: var(--accent2); }
+
+.capture-quick-sort {
+  display: flex; gap: 6px; margin-top: -10px; margin-bottom: 5px;
+}
+
+.capture-submit-btn {
+  background: var(--text); color: var(--bg); font-family: 'Syne', sans-serif;
+  font-weight: 700; padding: 14px; border-radius: 12px; font-size: 14px;
+  width: 100%; border: none; cursor: pointer; transition: transform 0.1s, opacity 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.capture-submit-btn:hover { opacity: 0.9; transform: scale(0.98); }
+[data-theme="light"] .capture-submit-btn { background: #16161e; color: #ffffff; }
 
 /* ══════════════════════════════════════
    CANVAS, OVERLAYS & ANIMATED BACKGROUNDS
@@ -469,7 +570,7 @@ canvas {
   background: rgba(28, 28, 34, 0.85); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
   border: 1px solid var(--border); border-radius: 8px; 
   display: flex; flex-direction: column; z-index: 5; 
-  pointer-events: auto; /* <--- CRUCIAL: Esto permite hacer clic */
+  pointer-events: auto;
   box-shadow: 0 4px 15px var(--shadow);
   overflow: hidden;
 }
@@ -496,7 +597,6 @@ canvas {
   opacity: 1;
 }
 
-/* Clase dinámica que aplicaremos con JavaScript para ocultar */
 .traversals.collapsed .trav-content {
   max-height: 0;
   padding-top: 0;
@@ -563,42 +663,32 @@ canvas {
    MEDIA QUERIES - DISEÑO SIDEBAR MÓVIL
 ══════════════════════════════════════ */
 @media (max-width: 768px) {
-  .app {
-    grid-template-rows: auto 1fr;
-  }
+  .app { grid-template-rows: auto 1fr; }
   .hdr { padding: 10px 14px; gap: 10px; }
   .hdr-tag, .stat-lbl { display: none; }
   .stats { gap: 10px; }
   .stat::before { content: '🔸'; font-size: 7px; margin-right: 4px; color: var(--accent2); }
   .menu-btn-mobile { display: flex; font-size: 18px; flex-shrink: 0; }
-  .hdr-title { flex-grow: 1; }
-
+  
   .toolbar {
     position: fixed; top: 0; left: -320px; right: auto; width: 300px; max-width: 85vw; height: 100dvh;
     flex-direction: column; align-items: stretch; justify-content: flex-start; z-index: 100; padding: 20px;
     box-shadow: 5px 0 25px rgba(0,0,0,0.7); overflow-y: auto; box-sizing: border-box; 
   }
-
   .toolbar.open { left: 0; }
-
   .mobile-menu-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 15px; }
   .mobile-menu-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--text); }
   .close-menu-btn { background: none; border: none; color: var(--text); font-size: 20px; cursor: pointer; padding: 5px; }
-
   .sec { border-right: none; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 18px; margin-bottom: 18px; width: 100%; box-sizing: border-box; }
   .sec:last-child { border-bottom: none; margin-bottom: 0; }
-
   .row { flex-wrap: nowrap; width: 100%; box-sizing: border-box; }
   input[type=number] { flex: 1; width: 100%; height: 42px; font-size: 16px; min-width: 0; }
   .btn { height: 42px; font-size: 13px; flex-shrink: 0; width: auto; }
   #pSize { flex: none; width: 65px; }
-
   .log-sec { height: 200px; max-width: 100%; }
-
   .traversals { top: auto; bottom: 85px; left: 10px; right: 10px; padding: 10px; font-size: 10px; }
   .trav-row { flex-wrap: wrap; gap: 4px; }
   .trav-lbl { width: 100%; }
-
   .legend { bottom: auto; top: calc(100% - 60px); left: 10px; right: 60px; flex-direction: row; flex-wrap: wrap; padding: 6px 10px; }
   .leg-item { font-size: 9px; }
   .zoom { right: 10px; bottom: 20px; }
@@ -609,7 +699,6 @@ canvas {
   font-size: 10px; letter-spacing: 1px; color: var(--accent2); opacity: 0.85; z-index: 10;
   text-decoration: none; white-space: nowrap; transition: all .2s; cursor: pointer;
 }
-
 .credit-footer:hover { opacity: 1; color: var(--accent); text-shadow: 0 0 8px var(--accent2); }
 
 @media (max-width: 768px) {
@@ -625,8 +714,8 @@ canvas {
 <header class="hdr">
   <button class="hbtn menu-btn-mobile" onclick="toggleMenu()" title="Menú">☰</button>
   
-<h1 class="hdr-title">AVL <em>Tree</em> Pro</h1>
-  
+  <!-- ════ CAMBIA "TU_LOGO_AQUI.png" POR EL NOMBRE DE TU IMAGEN ════ -->
+  <img src="Logotree.png" alt="Mi Logo" class="hdr-logo">
   
   <div class="hdr-right">
     <div class="stats">
@@ -655,7 +744,6 @@ canvas {
   </div>
 
   <div class="sec">
-    
     <div class="row">
       <input type="number" id="iVal" data-i-ph="val" placeholder="valor" aria-label="Valor a insertar"/>
       <button class="btn btn-acc" onclick="doInsert()" data-i="ins">Insertar</button>
@@ -671,6 +759,12 @@ canvas {
   </div>
 
   <div class="sec">
+    <!-- BOTÓN MODAL PRO CON SVG ICON -->
+    <button class="btn capture-submit-btn" onclick="openCaptureModal()" style="margin-bottom: 8px; padding: 10px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="M12 12v9"></path><path d="m8 17 4-4 4 4"></path></svg>
+      Importar Datos
+    </button>
+    
     <div class="row">
       <input type="number" id="pSize" placeholder="Cant." value="7" min="1" max="50"/>
       <div class="btn-grid">
@@ -679,7 +773,7 @@ canvas {
         <button class="btn btn-gh" onclick="loadDynamicPreset('rnd')">Rnd</button>
       </div>
     </div>
-    <button class="btn btn-del btn-w" data-i="clr" onclick="doClear()">Limpiar árbol</button>
+    <button class="btn btn-del btn-w" data-i="clr" onclick="doClear()" style="margin-top: 6px;">Limpiar árbol</button>
     <div class="spd-row">
       <label for="spdSlider" class="spd-lbl" data-i="spd">Vel.</label>
       <input type="range" id="spdSlider" min="1" max="10" step="0.5" value="3" oninput="setSpeed(this.value)">
@@ -687,9 +781,7 @@ canvas {
     </div>
   </div>
 
-  <!-- ════ 2. SECCIÓN DE GUARDADO Y ENLACE PARA COMPARTIR ACTUALIZADA ════ -->
   <div class="sec">
-
     <div class="row">
       <button class="btn btn-gh btn-w" onclick="saveCurrentTree()">Guardar Local</button>
       <button class="btn btn-acc btn-w" onclick="shareTree()" title="Copiar enlace del árbol">🔗 Compartir</button>
@@ -698,21 +790,60 @@ canvas {
   </div>
 
   <div class="sec log-sec">
-
     <div class="log-body" id="logBody"></div>
   </div>
 </nav>
+
+<!-- ════ VENTANA FLOTANTE (MODAL) DE CAPTURA PRO CON ORDENADORES ════ -->
+<div class="capture-modal-overlay" id="captureModalOverlay">
+  <div class="capture-modal">
+    <div class="capture-header">
+      <div class="capture-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path></svg>
+        Escanear Imagen
+      </div>
+      <button class="capture-close" onclick="closeCaptureModal()">✕</button>
+    </div>
+    
+    <label class="capture-file-btn">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted); margin-bottom: 5px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" x2="12" y1="3" y2="15"></line></svg>
+      <span style="font-weight: 700; font-family: 'Syne', sans-serif;">Subir o Capturar Foto</span>
+      <span style="font-size: 10px; color: var(--muted); opacity: 0.8;">Extrae números de fotos y libretas</span>
+      <input type="file" id="captureFileInput" accept="image/*" onchange="processCapturedImage(event)">
+    </label>
+
+    <div class="capture-status" id="captureStatus">
+      <span class="capture-loader" id="captureLoader"></span>
+      <span id="captureStatusText">Esperando archivo...</span>
+    </div>
+
+    <div class="textarea-wrapper">
+      <div class="textarea-badge">O ESCRIBE MANUALMENTE</div>
+      <textarea class="capture-textarea" id="captureTextarea" placeholder="Ej: 10, 20, 30..."></textarea>
+    </div>
+
+    <!-- BOTONES PARA ORDENAR RÁPIDO -->
+    <div class="capture-quick-sort">
+      <button class="btn btn-gh" style="flex: 1; padding: 6px; font-size: 10px;" onclick="sortCapture('asc')">Ascendente</button>
+      <button class="btn btn-gh" style="flex: 1; padding: 6px; font-size: 10px;" onclick="sortCapture('desc')">Descendente</button>
+      <button class="btn btn-gh" style="flex: 1; padding: 6px; font-size: 10px;" onclick="sortCapture('rev')">Invertir</button>
+    </div>
+    
+    <button class="capture-submit-btn" onclick="buildTreeFromCapture()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+      Generar Árbol
+    </button>
+  </div>
+</div>
 
 <main class="cv-wrap">
   <canvas id="cv"></canvas>
   
   <div class="traversals" id="traversals">
-    <!-- Encabezado clickeable -->
     <div class="trav-header" onclick="toggleTraversals()">
       <span>Recorridos</span>
       <span id="travIcon">▼</span>
     </div>
-    <!-- Contenido que se va a ocultar/mostrar -->
     <div id="travContent" class="trav-content">
       <div class="trav-row"><span class="trav-lbl">PreOrden:</span> <span class="trav-val" id="tPre">-</span></div>
       <div class="trav-row"><span class="trav-lbl">InOrden:</span> <span class="trav-val" id="tIn">-</span></div>
@@ -750,6 +881,145 @@ function toggleMenu() {
   const overlay = document.getElementById('sidebarOverlay');
   toolbar.classList.toggle('open');
   overlay.classList.toggle('active');
+}
+
+/* ══════════════════════════════════════
+   LÓGICA DEL MODAL DE CAPTURA Y OCR (NUEVO DISEÑO PRO Y FILTRO INTELIGENTE)
+══════════════════════════════════════ */
+const captureModal = document.getElementById('captureModalOverlay');
+const captureTextarea = document.getElementById('captureTextarea');
+const captureStatusText = document.getElementById('captureStatusText');
+const captureLoader = document.getElementById('captureLoader');
+const fileInput = document.getElementById('captureFileInput');
+
+function openCaptureModal() {
+  captureModal.classList.add('active');
+  captureTextarea.value = ''; 
+  captureStatusText.innerText = "Esperando archivo...";
+  captureStatusText.style.color = "var(--muted)";
+  captureLoader.style.display = "none";
+  if (window.innerWidth <= 768) toggleMenu();
+}
+
+function closeCaptureModal() {
+  captureModal.classList.remove('active');
+  fileInput.value = ''; 
+}
+
+captureModal.addEventListener('click', (e) => {
+  if(e.target === captureModal) closeCaptureModal();
+});
+
+function sortCapture(type) {
+  const text = captureTextarea.value;
+  let numbers = text.match(/-?\d+/g);
+  if (!numbers) return;
+  
+  numbers = numbers.map(Number);
+  if (type === 'asc') numbers.sort((a, b) => a - b);
+  if (type === 'desc') numbers.sort((a, b) => b - a);
+  if (type === 'rev') numbers.reverse();
+  
+  captureTextarea.value = numbers.join(', ');
+}
+
+// NUEVO: FILTRO INTELIGENTE PARA LEER LIBRETAS Y CUADERNOS
+async function processCapturedImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  captureStatusText.innerText = "Mejorando imagen (Borrando líneas)... ⏳";
+  captureStatusText.style.color = "var(--warn)";
+  captureLoader.style.display = "inline-block";
+
+  try {
+    // 1. PRE-PROCESAMIENTO: Convertir a Blanco y Negro Puro para eliminar sombras y líneas del cuaderno
+    const processedImage = await new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        
+        // Escalar un poco para mejorar resolución de lectura
+        const scale = Math.max(1, 1200 / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+
+        // Filtro de Alto Contraste
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i], g = data[i+1], b = data[i+2];
+          // Calcular luminosidad
+          const lum = (0.299 * r + 0.587 * g + 0.114 * b);
+          // Si es muy claro (papel o líneas azules/sombras) lo vuelve blanco. Si es tinta, negro.
+          const color = lum < 135 ? 0 : 255;
+          data[i] = data[i+1] = data[i+2] = color;
+        }
+        ctx.putImageData(imageData, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    captureStatusText.innerText = "Analizando con IA... 🤖";
+
+    // 2. Crear IA (Sin whitelist. Dejamos que lea las letras como letras para que no invente números)
+    const worker = await Tesseract.createWorker("eng", 1, {
+      logger: m => {
+        if(m.status === 'recognizing text') {
+            captureStatusText.innerText = `Leyendo... ${Math.round(m.progress * 100)}%`;
+        }
+      }
+    });
+
+    // 3. Extraer el texto de la imagen filtrada
+    const { data: { text } } = await worker.recognize(processedImage);
+    await worker.terminate(); 
+
+    // 4. Aislar mediante programación SOLO las cosas que sean números enteros
+    const numberMatches = text.match(/-?\b\d+\b/g);
+    
+    if (numberMatches && numberMatches.length > 0) {
+        captureTextarea.value = numberMatches.join(', ');
+        captureStatusText.innerText = `¡${numberMatches.length} datos extraídos con éxito!`;
+        captureStatusText.style.color = "var(--accent)";
+    } else {
+        captureStatusText.innerText = "No se detectaron números claros.";
+        captureStatusText.style.color = "var(--danger)";
+    }
+  } catch (err) {
+    console.error(err);
+    captureStatusText.innerText = "Error en el procesamiento.";
+    captureStatusText.style.color = "var(--danger)";
+  } finally {
+    captureLoader.style.display = "none";
+  }
+}
+
+function buildTreeFromCapture() {
+  const text = captureTextarea.value;
+  const numbers = text.match(/-?\d+/g);
+  
+  if (!numbers || numbers.length === 0) {
+    showToast("Introduce o escanea datos", "err");
+    return;
+  }
+
+  doClear(); 
+
+  const numArray = numbers.map(Number);
+  numArray.forEach(val => { 
+    AVL.root = silIns(AVL.root, val); 
+  }); 
+
+  log(`↓ Árbol Importado [${numArray.length} nodos]`, 'inf'); 
+  saveState();
+  autoFit();
+  closeCaptureModal();
+  showToast(`Estructura generada (${numArray.length} nodos)`, 'acc');
 }
 
 /* ══════════════════════════════════════
@@ -882,7 +1152,6 @@ function applyLegend() {
     dot.style.background = color.f; 
     dot.style.borderColor = color.s;
   });
-  // Actualizar meta theme-color para PWA móvil
   document.getElementById('themeColorMeta').setAttribute('content', dark ? '#0e0e10' : '#f0f0f5');
 }
 
@@ -982,7 +1251,6 @@ function saveCurrentTree() {
   showToast('Estado guardado', 'acc');
 }
 
-// ════ FUNCIÓN NUEVA: COMPARTIR ÁRBOL POR URL ════
 function shareTree() {
   if (busy || !AVL.root) { 
     showToast(T('empty'), 'err'); 
@@ -1042,7 +1310,7 @@ function loadSavedTree(id) {
     log(`↓ ${T('loaded')} [${entry.nodes.length} nodos]`, 'inf');
     saveState(); 
     showToast(T('loaded'), 'acc');
-    autoFit(); // Ajustar zoom automáticamente
+    autoFit();
     if (window.innerWidth <= 768) toggleMenu();
   }
 }
@@ -1440,7 +1708,7 @@ async function insertAnimated(val) {
   clearNodeColors(AVL.root); 
   busy = false; 
   saveState(); 
-  autoFit(); // Activar autozoom al finalizar inserción
+  autoFit();
 }
 
 async function deleteAnimated(val) {
@@ -1617,7 +1885,6 @@ let panX = 0;
 let panY = isMobile() ? 100 : 40; 
 let currentScale = isMobile() ? 0.8 : 1; 
 
-// ════ 3. VARIABLES PARA SISTEMA DE AUTO-ZOOM ════
 let targetScale = currentScale;
 let autoZoomEnabled = true;
 
@@ -1631,7 +1898,6 @@ function autoFit() {
   const maxScale = isMobile() ? 0.8 : 1;
   const minScale = 0.25;
   
-  // Calcula la escala para que el árbol ocupe el 85% del ancho y 65% del alto
   let scaleX = (W * 0.85) / Math.max(treeW, 1);
   let scaleY = (H * 0.65) / Math.max(treeH, 1);
   
@@ -1895,7 +2161,6 @@ function renderCanvas() {
   doLayout(); 
   animateNodes(AVL.root);
 
-  // Animación del zoom automático
   if (!isPaused) {
      currentScale = interpolate(currentScale, targetScale, 0.08);
   }
@@ -2161,7 +2426,7 @@ canvas.addEventListener('mousemove', e => {
 
 canvas.addEventListener('wheel', e => {
   e.preventDefault(); 
-  autoZoomEnabled = false; // Desactivar autozoom si el usuario hace zoom manual
+  autoZoomEnabled = false;
   const scaleMultiplier = e.deltaY > 0 ? 0.9 : 1.1;
   targetScale = Math.max(0.25, Math.min(3, currentScale * scaleMultiplier));
 }, { passive: false });
@@ -2205,7 +2470,7 @@ document.addEventListener('keydown', e => {
 });
 
 /* ══════════════════════════════════════
-   SISTEMA DE RECONOCIMIENTO DE VOZ (ACTUALIZADO)
+   SISTEMA DE RECONOCIMIENTO DE VOZ (SÚPER RESPONSIVO ⚡)
 ══════════════════════════════════════ */
 let recog = null; 
 let micActive = false;
@@ -2233,26 +2498,57 @@ function initMic() {
   
   const recognition = new SpeechRecognition(); 
   recognition.lang = curLang === 'es' ? 'es-ES' : curLang === 'en' ? 'en-US' : curLang === 'fr' ? 'fr-FR' : 'pt-BR'; 
-  recognition.continuous = false; 
-  recognition.interimResults = false;
   
+  recognition.continuous = true; 
+  recognition.interimResults = true; 
+  
+  let silenceTimer = null;
+
   recognition.onresult = event => { 
-    const textResult = event.results[0][0].transcript.toLowerCase().trim(); 
-    log(`🎙 "${textResult}"`, 'inf'); 
-    parseVoice(textResult); 
+    let interimTranscript = '';
+    let finalTranscript = '';
+
+    for (let i = event.resultIndex; i < event.results.length; ++i) {
+      if (event.results[i].isFinal) {
+        finalTranscript += event.results[i][0].transcript;
+      } else {
+        interimTranscript += event.results[i][0].transcript;
+      }
+    }
+
+    if (finalTranscript) {
+      clearTimeout(silenceTimer);
+      const textResult = finalTranscript.toLowerCase().trim(); 
+      if (textResult) {
+        log(`🎙 "${textResult}"`, 'inf'); 
+        parseVoice(textResult); 
+      }
+    } else if (interimTranscript) {
+      const btn = document.getElementById('micBtn');
+      btn.style.transform = 'scale(1.15)';
+      setTimeout(() => btn.style.transform = 'none', 150);
+      showToast(`... ${interimTranscript.trim()} ...`);
+
+      clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(() => {
+        if (micActive && recog) {
+          recog.stop(); 
+        }
+      }, 700); 
+    }
   };
   
   recognition.onend = () => { 
     if (micActive) { 
       setTimeout(() => { 
         try { recognition.start(); } catch(e) {} 
-      }, 150); 
+      }, 40); 
     } 
   };
   
   recognition.onerror = event => { 
     if (event.error === 'aborted' || event.error === 'no-speech') return; 
-    showToast('Error de micrófono: ' + event.error, 'err'); 
+    showToast('Error de micro: ' + event.error, 'err'); 
   };
   
   return recognition;
@@ -2281,36 +2577,27 @@ function toggleMic() {
   }
 }
 
-/* ══════════════════════════════════════
-   TOGGLE PANEL DE RECORRIDOS
-══════════════════════════════════════ */
-function toggleTraversals() {
-  const travBox = document.getElementById('traversals');
-  const travIcon = document.getElementById('travIcon');
-  
-  // Alterna la clase 'collapsed'
-  travBox.classList.toggle('collapsed');
-  
-  // Cambia la flechita según el estado
-  if (travBox.classList.contains('collapsed')) {
-    travIcon.textContent = '▲';
-  } else {
-    travIcon.textContent = '▼';
-  }
-}
-
 function parseVoice(textInput) {
-  const cleanText = textInput.replace(/\b(el|la|los|las|un|una|número|numero|the|number|le|les|une|o|a|os|as|de)\b/g, '').replace(/\s+/g, ' ').trim();
+  const cleanText = textInput.replace(/\b(el|la|los|las|número|numero|the|number|le|les|o|a|os|as|de)\b/gi, '').replace(/\s+/g, ' ').trim();
   
   const wordNumbers = { 
-    'cero': 0, 'zero': 0, 'uno': 1, 'una': 1, 'one': 1, 
-    'dos': 2, 'two': 2, 'tres': 3, 'three': 3, 
-    'cuatro': 4, 'four': 4, 'cinco': 5, 'five': 5, 
-    'seis': 6, 'six': 6, 'siete': 7, 'seven': 7, 
-    'ocho': 8, 'eight': 8, 'nueve': 9, 'nine': 9, 
-    'diez': 10, 'ten': 10, 'quince': 15, 'veinte': 20, 
-    'twenty': 20, 'treinta': 30, 'thirty': 30, 
-    'cuarenta': 40, 'forty': 40, 'cincuenta': 50, 'fifty': 50 
+    'cero': 0, 'zero': 0, 
+    'uno': 1, 'una': 1, 'un': 1, 'one': 1, 
+    'dos': 2, 'two': 2, 
+    'tres': 3, 'three': 3, 
+    'cuatro': 4, 'four': 4, 
+    'cinco': 5, 'five': 5, 
+    'seis': 6, 'six': 6, 
+    'siete': 7, 'seven': 7, 
+    'ocho': 8, 'eight': 8, 
+    'nueve': 9, 'nine': 9, 
+    'diez': 10, 'ten': 10, 
+    'once': 11, 'doce': 12, 'trece': 13, 'catorce': 14, 'quince': 15,
+    'veinte': 20, 'twenty': 20, 
+    'treinta': 30, 'thirty': 30, 
+    'cuarenta': 40, 'forty': 40, 
+    'cincuenta': 50, 'fifty': 50,
+    'sesenta': 60, 'setenta': 70, 'ochenta': 80, 'noventa': 90, 'cien': 100
   };
   
   function extractNumber(t) { 
@@ -2345,7 +2632,6 @@ function parseVoice(textInput) {
     doRedo(); return; 
   }
 
-  // Cancelar modos
   if (/cancelar|salir|normal|cancel|exit|quitter|sair/.test(cleanText)) {
     currentVoiceMode = null;
     updateMicIcon();
@@ -2377,7 +2663,6 @@ function parseVoice(textInput) {
     if (dark) toggleTheme(); showToast('Modo claro'); return; 
   }
 
-  // Activar modos o ejecutar directo
   if (/insertar|inserir|insert|agregar|añadir|add|meter|poner|coloca/.test(cleanText)) { 
     if (extractedNum !== null) { 
       document.getElementById('iVal').value = extractedNum; doInsert(); 
@@ -2433,7 +2718,6 @@ function parseVoice(textInput) {
     saveCurrentTree(); return; 
   }
 
-  // SI SOLO SE DICE UN NÚMERO Y HAY UN MODO ACTIVO
   if (extractedNum !== null && currentVoiceMode !== null) {
     if (currentVoiceMode === 'insert') {
       document.getElementById('iVal').value = extractedNum;
@@ -2448,7 +2732,6 @@ function parseVoice(textInput) {
     return;
   }
 
-  showToast(`No entendí: "${textInput}"`, 'err'); 
   log(`🎙 no reconocido: "${textInput}"`, 'wn');
 }
 
@@ -2460,14 +2743,12 @@ log(`— ${T('hint')}`, '');
 
 setSpeed(3); 
 
-// Registrar Service Worker (Para PWA)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW fallback', err));
   });
 }
 
-// ════ LEER ÁRBOL COMPARTIDO POR URL ════
 const urlParams = new URLSearchParams(window.location.search);
 const treeParam = urlParams.get('tree');
 if (treeParam) {
@@ -2477,7 +2758,6 @@ if (treeParam) {
     nodes.forEach(val => { AVL.root = silIns(AVL.root, val); });
     log(`↓ Árbol compartido cargado [${nodes.length} nodos]`, 'inf');
     
-    // Limpiar la URL visualmente para que no se vea el string largo
     const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
     window.history.replaceState({path: cleanUrl}, '', cleanUrl);
   }
@@ -2488,7 +2768,7 @@ renderSavedList();
 renderCanvas();
 
 /* ══════════════════════════════════════
-   BLOQUEO BÁSICO DE INSPECCIÓN (NO ES SEGURIDAD REAL)
+   BLOQUEO BÁSICO DE INSPECCIÓN
 ══════════════════════════════════════ */
 document.addEventListener('contextmenu', e => e.preventDefault());
 
@@ -2499,4 +2779,4 @@ document.addEventListener('keydown', e => {
 });
 </script>
 </body>
-</html>
+</html> 
