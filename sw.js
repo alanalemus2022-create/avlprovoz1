@@ -1,10 +1,8 @@
-const CACHE_NAME = 'avl-pro-v3'; // Subimos a la versión 3 para obligar al cambio
+const CACHE_NAME = 'avl-pro-v4';
 
 // 1. INSTALACIÓN
 self.addEventListener('install', (e) => {
-  // ¡TRUCO MAESTRO! Obliga al nuevo Service Worker a instalarse de inmediato sin esperar a que el usuario cierre la pestaña
-  self.skipWaiting(); 
-  
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll([
       '/',
@@ -14,24 +12,33 @@ self.addEventListener('install', (e) => {
   );
 });
 
-// 2. ACTIVACIÓN (Aquí destruimos la caché vieja de los celulares)
+// 2. ACTIVACIÓN (borra las cachés viejas)
 self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then((keyList) => {
-      return Promise.all(keyList.map((key) => {
-        // Si la caché guardada en el celular no es la "v3", la aniquilamos
-        if (key !== CACHE_NAME) {
-          console.log('[ServiceWorker] Borrando caché antigua:', key);
-          return caches.delete(key);
-        }
-      }));
-    }).then(() => self.clients.claim()) // Toma el control de la pantalla inmediatamente
+    caches.keys()
+      .then((keys) => Promise.all(
+        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+      ))
+      .then(() => self.clients.claim())
   );
 });
 
-// 3. RECUPERACIÓN DE DATOS
+// 3. RED PRIMERO: siempre intenta traer la versión nueva; la caché es el respaldo sin internet
 self.addEventListener('fetch', (e) => {
+  const req = e.request;
+
+  // Solo GET y solo archivos de tu sitio (no tocamos Google Fonts ni Tesseract)
+  if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
+
   e.respondWith(
-    caches.match(e.request).then((response) => response || fetch(e.request))
+    fetch(req)
+      .then((res) => {
+        if (res.status === 200) {
+          const copy = res.clone();
+          e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)));
+        }
+        return res;
+      })
+      .catch(() => caches.match(req, { ignoreSearch: true }))
   );
 });

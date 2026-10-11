@@ -597,13 +597,23 @@ canvas {
   opacity: 1;
 }
 
-.traversals.collapsed .trav-content {
-  max-height: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  opacity: 0;
+.trav-content {
+  padding: 4px 16px 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+  max-height: 500px;
+  opacity: 1;
 }
-
+#travIcon {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+.traversals.collapsed #travIcon {
+  transform: rotate(-90deg);
+}
 [data-theme="light"] .traversals { background: rgba(245, 245, 250, 0.85); }
 
 .trav-row { display: flex; align-items: baseline; gap: 8px; font-size: 11px; }
@@ -734,6 +744,24 @@ canvas {
 @keyframes popIn { 
   0% { opacity: 0; transform: translate(-50%, 30px); } 
   100% { opacity: 1; transform: translate(-50%, 0); } 
+}
+/* Panel Recorridos (acordeón) */
+.trav-content {
+  padding: 4px 16px 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+  max-height: 500px;
+  opacity: 1;
+  transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+}
+
+.traversals.collapsed .trav-content {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
 }
 </style>
 </head>
@@ -1262,6 +1290,9 @@ function updateTraversalsUI() {
   elPre.textContent = getPreOrder(AVL.root).join(', ');
   elIn.textContent = getInOrder(AVL.root).join(', ');
   elPos.textContent = getPostOrder(AVL.root).join(', ');
+}
+function toggleTraversals() {
+  document.getElementById('traversals').classList.toggle('collapsed');
 }
 
 /* ══════════════════════════════════════
